@@ -3,11 +3,16 @@ package com.appvantage.quizapp.presentation.quiz
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.appvantage.quizapp.common.Resource
 import com.appvantage.quizapp.domain.model.Quiz
 import com.appvantage.quizapp.domain.usecases.GetQuizzesUseCases
+import com.appvantage.quizapp.presentation.nav_graph.Routes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -16,6 +21,43 @@ class QuizViewModel @Inject constructor(private val getQuizzesUseCases: GetQuizz
 
     private val _quizList = MutableStateFlow(StateQuizScreen())
     val quizList = _quizList
+
+    private val _quizState = MutableStateFlow(QuizState())
+    val quizState: StateFlow<QuizState> = _quizState.asStateFlow()
+
+    fun setUserAnswer(questionIndex: Int, answer: String?) {
+        _quizList.update { currentState ->
+            val updatedQuizState = currentState.quizState.toMutableList().apply {
+                this[questionIndex] = this[questionIndex].copy(userAnswers = answer)
+            }
+            currentState.copy(quizState = updatedQuizState)
+        }
+    }
+
+    fun setCorrectAnswers(correctAnswers: List<String>) {
+        _quizState.update { currentState ->
+            currentState.copy(correctAnswers = correctAnswers)
+        }
+    }
+
+    fun navigateToScoreScreen(
+        navController: NavController, numOfQuestions: Int, numOfCorrectAnswers: Int,
+        userAnswer: List<List<String?>>,
+        correctAnswer: List<String>,
+        questions:List<String>
+    ) {
+//        val questions = quizList.value.quizState.map { it.quiz?.question ?: "" }
+
+        navController.navigate(
+            Routes.ScoreScreen.passNumOfQuestionsAndCorrectAns(
+                numOfQuestions = numOfQuestions,
+                numOfCorrectAnswers = numOfCorrectAnswers,
+                userAnswers = userAnswer,
+                correctAnswers = correctAnswer,
+                questions = questions
+            )
+        )
+    }
 
     fun onEvent(event:EventQuizScreen){
         when(event){
@@ -37,7 +79,8 @@ class QuizViewModel @Inject constructor(private val getQuizzesUseCases: GetQuizz
 
             updatedQuizStateList.add(
                 if(quizStateIndex == index){
-                    quizState.copy(selectedOptions = selectedOption)
+                    val userAnswer = quizState.shuffledOptions[selectedOption]
+                    quizState.copy(selectedOptions = selectedOption, userAnswers = userAnswer)
                 }
                 else quizState
             )

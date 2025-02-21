@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.icu.text.DecimalFormat
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -19,13 +20,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,6 +61,9 @@ import com.appvantage.quizapp.presentation.util.Dimens
 fun ScoreScreen(
     numOfQuestions: Int,
     numOfCorrectAns: Int,
+    userAnswers: List<String?>,
+    correctAnswers: List<String>,
+    questions: List<String>,
     navController: NavController
 ){
     val context = LocalContext.current
@@ -60,6 +71,8 @@ fun ScoreScreen(
          I just scored $numOfCorrectAns/$numOfQuestions in the Quiz App! 🏆
          Can you beat my score? Try it now!
          """.trimIndent()
+
+    var showAnswers by remember { mutableStateOf(false) }
 
     BackHandler {
         goToHome(navController)
@@ -124,12 +137,12 @@ fun ScoreScreen(
 
                 val scorePercentage = calculatePercentage(numOfCorrectAns,numOfQuestions )
 
-                LottieAnimation(
-                    modifier = Modifier.size(width = 400.dp, height = 150.dp),
-                    composition = composition,
-                    iterations = 100
-                )
-                Spacer(modifier = Modifier.height(Dimens.SmallSpacerHeight))
+//                LottieAnimation(
+//                    modifier = Modifier.size(width = 400.dp, height = 150.dp),
+//                    composition = composition,
+//                    iterations = 100
+//                )
+//                Spacer(modifier = Modifier.height(Dimens.SmallSpacerHeight))
 
                 Text(
                     text = "Congrats!",
@@ -159,6 +172,7 @@ fun ScoreScreen(
                 )
                 Spacer(modifier = Modifier.height(Dimens.MediumSpacerHeight))
 
+                    Log.d("ScoreScreen", "Questions: $questions")
                 Text(
                     text = annotatedString,
                     color = Color.Black,
@@ -167,6 +181,38 @@ fun ScoreScreen(
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(Dimens.LargeSpacerHeight))
+
+                Button(onClick = { showAnswers = !showAnswers }) {
+                    Text(if (showAnswers) "Hide Answers" else "Show Answers")
+                }
+
+                if (showAnswers) {
+                    LazyColumn {
+                        itemsIndexed(questions) { index, question ->
+                            val userAnswer = userAnswers[index]
+                            val correctAnswer = correctAnswers[index]
+
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp)
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Text(text = "Question: $question", style = MaterialTheme.typography.titleMedium)
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    Text(
+                                        text = "Your Answer: ${userAnswer ?: "No answer"}",
+                                        color = if (userAnswer == correctAnswer) Color.Green else Color.Red
+                                    )
+
+                                    Text(text = "Correct Answer: $correctAnswer")
+                                }
+                            }
+                        }
+                    }
+                }
 
                 Row (
                     verticalAlignment = Alignment.CenterVertically

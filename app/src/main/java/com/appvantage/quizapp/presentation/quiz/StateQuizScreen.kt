@@ -15,5 +15,7 @@ data class QuizState(
 
     val quiz: Quiz? =null,
     val shuffledOptions:List<String> = emptyList(),
-    val selectedOptions:Int ? =-1
+    val selectedOptions:Int ? =-1,
+    val userAnswers: String? = null, // Store user's answers
+    val correctAnswers: List<String> = emptyList() // Store correct answers
 )

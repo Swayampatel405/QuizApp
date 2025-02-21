@@ -72,21 +72,32 @@ fun SetNavGraph(){
                 quizType = type!!,
                 event = quizViewModel::onEvent,
                 state = state,
-                navController)
+                navController,
+                viewModel = quizViewModel
+            )
 
         }
         composable(
             route = Routes.ScoreScreen.route,
             arguments = listOf(
                 navArgument(NOQ_KEY){type = NavType.IntType},
-                navArgument(CORRECT_ANS_KEY){type = NavType.IntType}
+                navArgument(CORRECT_ANS_KEY){type = NavType.IntType},
+                navArgument(USER_ANSWERS_KEY) { type = NavType.StringType },
+                navArgument(CORRECT_ANSWERS_KEY) { type = NavType.StringType },
+                navArgument(QUESTIONS_KEY) { type = NavType.StringType }
             )
         ){
             val numOfQuestions = it.arguments?.getInt(NOQ_KEY)
             val numOfCorrectAns = it.arguments?.getInt(CORRECT_ANS_KEY)
+            val userAnswers = it.arguments?.getString(USER_ANSWERS_KEY)?.split("|")
+            val correctAnswers = it.arguments?.getString(CORRECT_ANSWERS_KEY)?.split("|")
+            val questions = it.arguments?.getString(QUESTIONS_KEY)?.split("|")
             ScoreScreen(
                 numOfQuestions = numOfQuestions!!,
                 numOfCorrectAns = numOfCorrectAns!!,
+                userAnswers = userAnswers!!,
+                correctAnswers = correctAnswers!!,
+                questions = questions!!,
                 navController = navController
             )
         }

@@ -7,6 +7,9 @@ const val ARG_KEY_QUIZ_DIFFICULTY = "ak_quiz_difficulty"
 const val ARG_KEY_QUIZ_TYPE = "ak_quiz_type"
 const val NOQ_KEY = "noq_key"
 const val CORRECT_ANS_KEY = "correct_ans_key"
+const val USER_ANSWERS_KEY = "user_answers_key"
+const val CORRECT_ANSWERS_KEY = "correct_answers_key"
+const val QUESTIONS_KEY = "questions_key"
 
 sealed class Routes(val route:String) {
 
@@ -47,11 +50,21 @@ sealed class Routes(val route:String) {
         }
 
     }
-    object ScoreScreen : Routes("score_screen/{$NOQ_KEY}/{$CORRECT_ANS_KEY}"){
-        fun passNumOfQuestionsAndCorrectAns(questions:Int,correctAnswers:Int):String{
-            return "score_screen/{$NOQ_KEY}/{$CORRECT_ANS_KEY}"
-                .replace("{$NOQ_KEY}",questions.toString())
-                .replace("{$CORRECT_ANS_KEY}",correctAnswers.toString())
+    object ScoreScreen : Routes("score_screen/{$NOQ_KEY}/{$CORRECT_ANS_KEY}/{$USER_ANSWERS_KEY}/{$CORRECT_ANSWERS_KEY}/{$QUESTIONS_KEY}"){
+        fun passNumOfQuestionsAndCorrectAns(
+            numOfQuestions: Int,
+            numOfCorrectAnswers: Int,
+            userAnswers: List<List<String?>>,
+            correctAnswers: List<String>,
+            questions: List<String>
+        ):String
+        {
+            return "score_screen/{$NOQ_KEY}/{$CORRECT_ANS_KEY}/{$USER_ANSWERS_KEY}/{$CORRECT_ANSWERS_KEY}/{$QUESTIONS_KEY}"
+                .replace("{$NOQ_KEY}", numOfQuestions.toString())
+                .replace("{$CORRECT_ANS_KEY}", numOfCorrectAnswers.toString())
+                .replace("{$USER_ANSWERS_KEY}", userAnswers.joinToString("|"))
+                .replace("{$CORRECT_ANSWERS_KEY}", correctAnswers.joinToString("|"))
+                .replace("{$QUESTIONS_KEY}", questions.joinToString("|"))
         }
     }
 }

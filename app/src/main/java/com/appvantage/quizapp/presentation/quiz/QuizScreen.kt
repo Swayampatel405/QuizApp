@@ -1,6 +1,7 @@
 package com.appvantage.quizapp.presentation.quiz
 
 import android.os.CountDownTimer
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -36,27 +37,11 @@ import com.appvantage.quizapp.presentation.common.ButtonBox
 import com.appvantage.quizapp.presentation.common.QuizAppBar
 import com.appvantage.quizapp.presentation.home.component.ShimmerEffectQuizInterface
 import com.appvantage.quizapp.presentation.nav_graph.Routes
-import com.appvantage.quizapp.presentation.nav_graph.Routes.ScoreScreen.passNumOfQuestionsAndCorrectAns
 import com.appvantage.quizapp.presentation.quiz.component.QuizInterface
 import com.appvantage.quizapp.presentation.util.Constants
 import com.appvantage.quizapp.presentation.util.Dimens
 import kotlinx.coroutines.launch
 
-//
-//@Preview
-//@Composable
-//fun Prev(){
-//    QuizScreen(
-//        numOfQuiz = 12,
-//        quizCategory = "GK",
-//        quizDifficulty = "Easy",
-//        quizType = "easy",
-//        event = {},
-//        navController = rememberNavController(),
-//        state =
-//
-//    )
-//}
 
 @Composable
 fun QuizScreen(
@@ -66,7 +51,8 @@ fun QuizScreen(
     quizType: String,
     event: (EventQuizScreen)->Unit,
     state:StateQuizScreen,
-    navController: NavController
+    navController: NavController,
+    viewModel: QuizViewModel
 ){
 
     val totalTime = 3 * 60 * 1000L // 1 min
@@ -78,7 +64,7 @@ fun QuizScreen(
             }
 
             override fun onFinish() {
-                navController.navigate(passNumOfQuestionsAndCorrectAns(state.quizState.size,state.score))
+//                navController.navigate(passNumOfQuestionsAndCorrectAns(state.quizState.size,state.score)
             }
         }
     }
@@ -226,7 +212,16 @@ fun QuizScreen(
                         fontSize = Dimens.SmallTextSize
                     ) {
                         if(pagerState.currentPage == state.quizState.size - 1){
-                            navController.navigate(passNumOfQuestionsAndCorrectAns(state.quizState.size,state.score))
+                            Log.d("QuizScreen", "Questions: ${state.quizState.map { it.quiz?.question }}")
+                            viewModel.navigateToScoreScreen(
+                                navController = navController,
+                                numOfQuestions = state.quizState.size,
+                                numOfCorrectAnswers = state.score,
+                                userAnswer = listOf(state.quizState.map { it.userAnswers }),
+                                correctAnswer = listOf(state.quizState.map { it.quiz?.correct_answer ?: "" }
+                                    .toString()),
+                                questions = state.quizState.map { it.quiz?.question ?: "" }
+                            )
                         }
                         else{
                             scope.launch {  pagerState.animateScrollToPage(pagerState.currentPage + 1) }
