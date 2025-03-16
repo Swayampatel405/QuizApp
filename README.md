@@ -59,4 +59,4 @@
 
 1. Clone the repository:  
    ```sh
-   git clone https://github.com/your-username/quiz-app.git
+   git clone https://github.com/Swayampatel405/QuizApp.git
