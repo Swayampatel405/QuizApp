@@ -55,7 +55,7 @@ fun QuizScreen(
     viewModel: QuizViewModel
 ){
 
-    val totalTime = 3 * 60 * 1000L // 1 min
+    val totalTime = 1 * 60 * 1000L // 1 min
     var timeLeft by remember { mutableStateOf(totalTime) }
     val timer = remember {
         object : CountDownTimer(totalTime, 1000) {
